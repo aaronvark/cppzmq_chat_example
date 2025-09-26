@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 
-project(low-level_setup
+project(cppzmq_chat
  VERSION 1.0
  LANGUAGES CXX
 )
