@@ -2,13 +2,7 @@
 #include "imgui-SFML.h"
 
 #include <SFML/Graphics.hpp>
-
-#include <iostream>
-#include <random>
-#include <map>
-
 #include <zmq.hpp>
-#include <zmq_addon.hpp>
 
 using namespace std;
 
@@ -78,18 +72,24 @@ void NetworkWindow() {
 
     // Message sending (client side)
     ImGui::Text("Send Message (Client):");
-    ImGui::InputText("##message", message, sizeof(message));
+    ImGui::InputText("##message", message, sizeof(message), ImGuiFocusedFlags_AnyWindow);
+    bool textFocused = ImGui::IsItemFocused();
+    ImGuiID textID = ImGui::GetItemID();
     ImGui::SameLine();
-    if (ImGui::Button("Send") && clientConnected && !waitingForReply) {
+    if ((ImGui::Button("Send") || ImGui::IsKeyPressed(ImGuiKey_Enter) && textFocused) && clientConnected && !waitingForReply) {
         try {
-            zmq::message_t zmq_msg(strlen(message));
-            memcpy(zmq_msg.data(), message, strlen(message));
-            client.send(zmq_msg, zmq::send_flags::dontwait);
-            waitingForReply = true;
+            if (strlen(message) > 0) {
+                zmq::message_t zmq_msg(strlen(message));
+                memcpy(zmq_msg.data(), message, strlen(message));
+                client.send(zmq_msg, zmq::send_flags::dontwait);
+                waitingForReply = true;
 
-            messageHistory.push_back("[SENT] " + std::string(message));
-            if (messageHistory.size() > MAX_MESSAGES) {
-                messageHistory.erase(messageHistory.begin());
+                messageHistory.push_back("[SENT] " + std::string(message));
+                if (messageHistory.size() > MAX_MESSAGES) {
+                    messageHistory.erase(messageHistory.begin());
+                }
+
+                std::fill(std::begin(message), std::end(message), '\0');
             }
         }
         catch (const zmq::error_t& e) {
