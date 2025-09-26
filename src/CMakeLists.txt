@@ -1,8 +1,8 @@
-add_executable(low-level_setup
+add_executable(cppzmq_chat
  main.cpp
 )
 
-target_link_libraries(low-level_setup
+target_link_libraries(cppzmq_chat
  PUBLIC
   ImGui-SFML::ImGui-SFML
 )
